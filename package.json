@@ -1,0 +1,21 @@
+{
+  "name": "bookshare",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "yagnesh",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "googleapis": "^65.0.0",
+    "mongoose": "^5.10.14",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.6"
+  }
+}
