@@ -1,9 +1,10 @@
 const express = require ("express");
 const router = express.Router();
+require("dotenv").config()
 const{google} = require("googleapis");
 const book =  google.books({
 	version: 'v1',
-  auth: 'AIzaSyAGdDIx7QT6ODEF3crMLrHcgAz2lCZLnzU' // specify your API key here
+  auth: process.env.GOOGLE_API // specify your API key here
 });
 
 //get serach book
