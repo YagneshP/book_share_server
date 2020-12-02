@@ -1,5 +1,7 @@
 const mongoose = require ("mongoose");
 const {Schema }= mongoose;
+const bcyrpt = require("bcrypt");
+const Book = require("./book");
 
 const userSchema = new Schema({
 	firstName:{
@@ -11,9 +13,24 @@ const userSchema = new Schema({
 		type:String,
 		required:true
 	},
-	books:[]
+	password:{
+		type:String,
+		required:true
+	},
+	books:[{
+		type:mongoose.Types.ObjectId,
+		ref:"Book"
+	}]
 });
 
-const user = mongoose.model("User", userSchema);
+userSchema.pre("save", async function(next){
+	const salt = await bcyrpt.genSalt(10);
+	 this.password = await bcyrpt.hash(this.password,salt);
+	 console.log(`User with hash ${this}`);
+	next()
+})
 
-module.exports = user;
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
