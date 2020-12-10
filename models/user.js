@@ -11,11 +11,14 @@ const userSchema = new Schema({
 	lastName:String,
 	email:{
 		type:String,
-		required:true
+		required:true,
+		unique:true
 	},
 	password:{
 		type:String,
-		required:true
+		required:true,
+		min:8,
+		max:32
 	},
 	books:[{
 		type:mongoose.Types.ObjectId,
@@ -24,7 +27,7 @@ const userSchema = new Schema({
 });
 
 userSchema.pre("save", async function(next){
-	const salt = await bcyrpt.genSalt(10);
+	const salt = 10;
 	 this.password = await bcyrpt.hash(this.password,salt);
 	next()
 })

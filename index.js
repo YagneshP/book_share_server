@@ -16,7 +16,8 @@ require("dotenv").config();
 mongoose.connect(process.env.MONGO_URI, 
 	{
 		useNewUrlParser: true,
-		useUnifiedTopology: true
+		useUnifiedTopology: true,
+		useCreateIndex: true
 	});
 const port = 8004;
 app.use(express.json());

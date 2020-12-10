@@ -18,8 +18,11 @@ const book =  google.books({
 
 router.get("/", wrapAsync(async(req,res)=>{
 		 const user = await User.findById(req.user.userId).select("-password").populate("books");
-		 res.json(user)
+		 if(user){
+			res.json(user)
+		 }else{
 			throw createError(400,"Something Went Wrong")
+		 }			
 }))
 
 
