@@ -1,6 +1,8 @@
 const express = require ("express");
 const router = express.Router();
 const{authCheck} = require("../middleware/authCheck");
+const createError = require('http-errors');
+const{wrapAsync}=require("../wrapAsync");
 require("dotenv").config()
 const{google} = require("googleapis");
 const book =  google.books({
@@ -9,15 +11,15 @@ const book =  google.books({
 });
 
 //get serach book
-router.get("/", async(req,res)=>{
-const query = req.query;
+router.get("/", wrapAsync(async(req,res)=>{
+const query = req.query.q;
 async function main(query) {
-	const response = await book.volumes.list(query);
+	const response = await book.volumes.list({q:query});
 	const volumeInfo = response.data.items.map(i =>  i); //.volumeInfo
-	res.status(200).json(volumeInfo);
+return volumeInfo;
 };
-const data = main(query).catch(console.error);
-res.status(200).json(data)
-});
+ const foundData= await main(query).catch(error=> {throw createError(500, error.message)})
+	res.status(200).json(foundData)
+}));
 
 module.exports = router;

@@ -26,7 +26,6 @@ const userSchema = new Schema({
 userSchema.pre("save", async function(next){
 	const salt = await bcyrpt.genSalt(10);
 	 this.password = await bcyrpt.hash(this.password,salt);
-	 console.log(`User with hash ${this}`);
 	next()
 })
 

@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const app = express();
 const user = require("./routes/users");
+const auth = require("./routes/auth");
 const books = require("./routes/books");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
@@ -21,16 +22,19 @@ const port = 8004;
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+app.use(cors({
+	origin:"http://localhost:3000",
+	credentials:true
+}))
 app.get("/", (req,res)=>{
 	res.send("HomePage");
 })
-app.use("/api/user", user);
-app.use("/api/books",authCheck, books);
+app.use("/api/user",authCheck,user);
+app.use("/api/auth",auth)
+app.use("/api/books",authCheck, books); // add authcheck middleware
 app.use( notFound);
 app.use( errorHandler);
-// app.use(cors({
-// 	origin:"http//localhost:3000"
-// }))
+
 
 
 app.listen(port, ()=>{

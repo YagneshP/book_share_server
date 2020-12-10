@@ -1,64 +1,27 @@
 
 const express = require ("express");
+const Book = require("../models/book");
 const router = express.Router();
 const User = require("../models/user");
-const {createAccessToken} = require("../token")
-const bcrypt = require("bcrypt");
+const{wrapAsync}=require("../wrapAsync");
+const createError = require('http-errors')
 require("dotenv").config()
 const{google} = require("googleapis");
-const Book = require("../models/book");
+
+
+
 const book =  google.books({
 	version: 'v1',
   auth: process.env.GOOGLE_API // specify your API key here
 });
-//get the user by email
-router.post("/login",async(req,res)=>{
-	try{
-		const foundUser= await User.findOne({email:req.body.email});
-		if(foundUser){
-			//check the password of the found user
-			const correctPassword = await bcrypt.compare(req.body.password, foundUser.password);
-			if(correctPassword){
-				const token = createAccessToken(foundUser._id);
-				res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24})
-				res.status(201).json({foundUser});
-			}else{
-				throw Error("InCorrect Password");
-			}
-		
-		}else{
-			throw Error("Email is Invalid")
-		}
-	
-	}
-	catch(err){
-		res.status(400).json(err.message)
-	}
-});
-//logOut
-router.post("/logout",(req,res)=>{
-	console.log("logout route")
- res.clearCookie("jwt");
- res.redirect("/")
-})
 
-// post user
-router.post("/signup", async(req,res)=>{
-	try{
-		const user = await User.findOne({email: req.body.email});
-		if(user){
-			throw  Error("Email Already exist")
-		}else{
-			const newUser = await User.create(req.body);
-			const token = createAccessToken(newUser._id);
-			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24})
-			res.status(201).json({newUser});
-		}
-	} catch(err){
-		res.status(400).json(err.message) //err.message
-	}
 
-});
+router.get("/", wrapAsync(async(req,res)=>{
+		 const user = await User.findById(req.user.userId).select("-password").populate("books");
+		 res.json(user)
+			throw createError(400,"Something Went Wrong")
+}))
+
 
 //Get collection of user
 router.get("/:id/collection", async (req,res)=>{
@@ -71,8 +34,7 @@ router.get("/:id/collection", async (req,res)=>{
 });
 
 //adding book to collection
-router.post("/:id/collection/add/:book_id", async(req,res)=>{
-	try{
+router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 		//1. find user and find book in User collection if it is exist {book already in your collection}
 			const foundUser = await User.findById(req.params.id).populate({
 				path: 'books',
@@ -87,7 +49,7 @@ router.post("/:id/collection/add/:book_id", async(req,res)=>{
 						return response.data
 					};
 		//3. if we find book then create new book for user collection and send response
-				const data = await oneBook(bookId).catch(console.error); // Need to improve to throw error ****//
+				const data = await oneBook(bookId).catch(error => {throw createError(500, error.message)}); // Need to improve to throw error ****//
 				const{
 					title,
 					subtitle,
@@ -114,33 +76,27 @@ router.post("/:id/collection/add/:book_id", async(req,res)=>{
 			//push this new book to foundUser books array and save
 				foundUser.books.push(newBook._id);
 				await foundUser.save();
-				res.send(foundUser)
+				res.send(newBook)
 			} 	//4.if we dont find any book then send book doesnt exist 
 			else{ 
-				throw Error(`Book is already in your collection`)
+				throw createError(409,`Book is already in your collection`)
 			}
-		}catch(err){
-			console.log(`err while /:id/boooks/add/book.id: ${err}`)
-		}
-});
+}));
 
 
 //removing book from collection
-router.delete("/:id/collection/remove/:book_id", async(req,res)=>{
-	try{
+router.delete("/:id/collection/remove/:book_id",wrapAsync(async(req,res)=>{
 	
 			let foundBook = await Book.findById(req.params.book_id);
 			if(!foundBook){
-				return res.status(400).json("Book Not Found");
+				return res.status(400).json({message:"Book Not Found"});
 			}
 		if(foundBook.user.toString() !== req.params.id){
-			return res.status(401).json({message:"Not authorized"})
+			return res.status(403).json({message:"Not authorized"})
 		};
 		await foundBook.remove();
-		res.json({message:"Book removed form the list"})
-	}catch(error){
-		console.log(error)
-	}
-})
+		res.json(foundBook)
+	throw createError(400,"Something went wrong")
+}))
 
 module.exports = router;
