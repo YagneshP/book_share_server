@@ -79,7 +79,7 @@ router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 			//push this new book to foundUser books array and save
 				foundUser.books.push(newBook._id);
 				await foundUser.save();
-				res.send(newBook)
+				res.json({newBook:newBook, message:`${newBook.title} is added to your collection`})
 			} 	//4.if we dont find any book then send book doesnt exist 
 			else{ 
 				throw createError(409,`Book is already in your collection`)

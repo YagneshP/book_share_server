@@ -3,6 +3,21 @@ const {Schema }= mongoose;
 const bcyrpt = require("bcrypt");
 const Book = require("./book");
 
+const citySchema = new mongoose.Schema({
+  name: String,
+  location: {
+    type: {
+      type: String, 
+      enum: ['Point'], 
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  }
+});
+
 const userSchema = new Schema({
 	firstName:{
 			type:String,
@@ -20,6 +35,7 @@ const userSchema = new Schema({
 		min:8,
 		max:32
 	},
+	city:citySchema,
 	books:[{
 		type:mongoose.Types.ObjectId,
 		ref:"Book"
