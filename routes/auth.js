@@ -10,6 +10,11 @@ const{body, validationResult} = require("express-validator");
 const axios = require("axios");
 const {Client} = require("@googlemaps/google-maps-services-js");
 const client = new Client({});
+const mongoose = require("mongoose");
+const City = require("../models/city");
+
+
+
 
 //get the user by email
 //wrapping async for async error
@@ -43,6 +48,7 @@ router.post("/login",
 					httpOnly:true,
 					sameSite:"lax"
 				})
+				// res.json(foundUser)
 				res.status(200).json(token);
 			}else{
 				throw createError(400,"Incorrect Password");
@@ -67,7 +73,11 @@ wrapAsync(async(req,res)=>{
 			throw createError(400, errors.errors[0].msg)
 		}
 		//1.get the city from the req.body
-		client.geocode({
+
+
+
+
+const cityLocation =	await client.geocode({
 			params: {
 			 address:`${req.body.city}`,
 				key: process.env.GEOCODING_API
@@ -77,28 +87,49 @@ wrapAsync(async(req,res)=>{
 		.then(r => {
 			if(r.data.status === "OK"){
 			//2.get latitude ang longitude from google api
-				console.log(r.data.results[0].geometry.location); //{ lat: 51.5073509, lng: -0.1277583 }
+			const location = r.data.results[0].geometry.location
+				console.log(location); //{ lat: 51.5073509, lng: -0.1277583 }
+				return location
 			}else{
 				console.log("status",r.data.status)
 			}
 			
-		}).catch(err =>{
+		}).then(location => {
+			const geoLocation = {
+					type:"Point",
+					coordinates:[location.lng, location.lat]
+				}
+			
+			return geoLocation
+		})
+		.catch(err =>{
 			console.log("err",err)
 		});
 		
-
+// console.log("cityPlace", cityPlace);
 
 		const user = await User.findOne({email: req.body.email});
 		if(user){
-			throw  createError(409,"Email Already exist")
+			throw  createError(400,"Email Already exist")
 		}else{
-			console.log("Body", req.body);
-			console.log("city",req.body.city);
-			const newUser = await User.create(req.body);
+			try{
+				const newUser = await User.create({email:req.body.email,firstName:req.body.firstName,password:req.body.password,location:cityLocation})
+				// const newCity = await City.create({name:req.body.city, location:cityLocation});
+				// newUser.city.push(newCity._id)
 			const token = createAccessToken(newUser._id);
-			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24,sameSite:"lax"})
+			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24,sameSite:"lax"});
+			console.log("newUser::",newUser)
 			res.status(201).json(token);
+			// res.status(201).json(newUser);
+			}catch(error){
+			  throw createError(500,error.message)
+			}
+		
+				
+		
+			
 		}
+
 	}
 ));
 

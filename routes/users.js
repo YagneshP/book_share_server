@@ -7,6 +7,7 @@ const{wrapAsync}=require("../wrapAsync");
 const createError = require('http-errors')
 require("dotenv").config()
 const{google} = require("googleapis");
+const City = require("../models/city");
 
 
 
@@ -26,6 +27,107 @@ router.get("/", wrapAsync(async(req,res)=>{
 }))
 
 
+//========= getting user near city location ===========//
+router.get("/:id/findUsers",async(req,res)=>{
+	try{
+		// const user = await User.find({$and:[
+		// 	{location: { $geoWithin: { $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } }},//-74.0059728, 40.7127753 - newyork  -79.3831843, 43.653226-toronto -79.7624177, 43.7315479-brampton
+		// 	{books:{$elemMatch:{title:{$eq: "JavaScript: The Definitive Guide" }}}}
+		// 	// {firstName:{$eq:"user11"}}
+		// ]
+		
+		// })
+		const user =  await	User.aggregate(
+					[
+						{"$match":
+								{	location:
+													{ $geoWithin: 
+																				{ $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } 
+													},
+							
+							}}
+					])
+				
+			 
+			// .populate(	
+		// 	{path: 'books',
+		//    match: { title: { $eq: "JavaScript: The Definitive Guide" } }});
+		// const user = await User.aggregate(
+		// 	[
+		// 		{"$match":
+		// 				{	location:
+		// 									{ $geoWithin: 
+		// 																{ $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } 
+		// 									},
+					
+		// 			}}
+		// 	])
+				// {
+				// 			"books":
+				// 						// {"$elemMatch":
+				// 							{"id": "2weL0iAfrEMC" }
+				// 						// }
+				// }
+			// ]}
+					// {
+					// 	books:
+					// 					{$eleMatch:
+					// 						{"title":  {$eq: "JavaScript: The Definitive Guide" }}
+					// 					}
+					// }
+				// },
+				// {"$match":
+			  // 	{path:"books",
+				// 		match	:				{
+				// 								title:{$eq:"JavaScript: The Definitive Guide"}
+				// 							}
+				//   }
+
+				// }
+			// ])
+		
+		// books:{title:{ $eq: "JavaScript: The Definitive Guide" }}
+			
+			// [
+			// 	{ "$geoNear": {
+			// 		"near": {
+			// 			"type": "Point",
+			// 			"coordinates": [-79.7624177, 43.7315479 ]
+			// 		},
+			// 		"spherical": true,
+			// 		"distanceField": "distance",
+			// 		"distanceMultiplier": 0.001,
+			// 		"maxDistance": 100/6378.1,
+			// 		"includeLocs": "location"
+			// 	}}
+				// ,
+				// { "$addFields": {
+				// 	"parking_space": {
+				// 		"$filter": {
+				// 			"input": "$parking_space",
+				// 			"cond": {
+				// 				"$eq": ["$location", "$$this.location"]
+				// 			}
+				// 		}
+				// 	}
+				// }}
+			// ]
+
+		// }}])
+
+		if(user){
+			console.log("user:", user)
+		 res.json(user)
+	}}catch(error){
+		console.log(error)
+		res.send(error)
+	}
+})
+
+
+
+
+
 //Get collection of user
 router.get("/:id/collection", async (req,res)=>{
 	try{
@@ -42,7 +144,7 @@ router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 			const foundUser = await User.findById(req.params.id).populate({
 				path: 'books',
 				match: { id: { $eq: req.params.book_id } },
-							select: "title"
+				select: "title"
 			});
 	//2. if not  find book from book.id by sending request to google api
 			if(foundUser.books.length === 0){

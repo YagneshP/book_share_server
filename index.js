@@ -30,7 +30,7 @@ app.use(cors({
 app.get("/", (req,res)=>{
 	res.send("HomePage");
 })
-app.use("/api/user",authCheck,user);
+app.use("/api/user",authCheck,user);// add authcheck middleware
 app.use("/api/auth",auth)
 app.use("/api/books",authCheck, books); // add authcheck middleware
 app.use( notFound);

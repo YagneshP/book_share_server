@@ -2,19 +2,17 @@ const mongoose = require ("mongoose");
 const {Schema }= mongoose;
 const bcyrpt = require("bcrypt");
 const Book = require("./book");
-
-const citySchema = new mongoose.Schema({
-  name: String,
-  location: {
-    type: {
-      type: String, 
-      enum: ['Point'], 
-      required: true
-    },
-    coordinates: {
-      type: [Number],
-      required: true
-    }
+const City = require("./city");
+//========== point Schema =========//
+const pointSchema = new Schema({
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true
+  },
+  coordinates: {
+    type: [Number],
+    required: true
   }
 });
 
@@ -35,7 +33,8 @@ const userSchema = new Schema({
 		min:8,
 		max:32
 	},
-	city:citySchema,
+	// city:[{type:mongoose.Types.ObjectId, ref:"City"}],
+location:{type:pointSchema,indexes:"2dsphere"},
 	books:[{
 		type:mongoose.Types.ObjectId,
 		ref:"Book"
