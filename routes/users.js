@@ -16,7 +16,6 @@ const book =  google.books({
   auth: process.env.GOOGLE_API // specify your API key here
 });
 
-
 router.get("/", wrapAsync(async(req,res)=>{
 		 const user = await User.findById(req.user.userId).select("-password").populate("books");
 		 if(user){
@@ -30,91 +29,32 @@ router.get("/", wrapAsync(async(req,res)=>{
 //========= getting user near city location ===========//
 router.get("/:id/findUsers",async(req,res)=>{
 	try{
-		// const user = await User.find({$and:[
-		// 	{location: { $geoWithin: { $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } }},//-74.0059728, 40.7127753 - newyork  -79.3831843, 43.653226-toronto -79.7624177, 43.7315479-brampton
-		// 	{books:{$elemMatch:{title:{$eq: "JavaScript: The Definitive Guide" }}}}
-		// 	// {firstName:{$eq:"user11"}}
-		// ]
-		
-		// })
-		const user =  await	User.aggregate(
-					[
-						{"$match":
+console.log("req.query.bookName:", typeof(req.query.bookName))
+const reqUser = await User.findById(req.params.id);
+const lag= reqUser.location.coordinates[0];
+const lat = reqUser.location.coordinates[1]
+const user =  await	User.aggregate(
+			[ { "$lookup": {
+						"from": "books",
+						"localField": "books",
+						"foreignField": "_id",
+						"as": "books"
+				 }
+				},
+				{"$match":{
+							"$and":[
 								{	location:
-													{ $geoWithin: 
-																				{ $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } 
-													},
-							
-							}}
+										{ $geoWithin: 
+															{ $centerSphere: [ [ lag, lat ], req.query.radius/6378.1 ] } 
+										},
+								},
+								{
+			           "books":{$elemMatch :{"title":{$eq:req.query.bookName.toLowerCase()}}}
+								}]	
+							}
+				},
+					{"$project":{firstName:1, email:1,_id:0}}
 					])
-				
-			 
-			// .populate(	
-		// 	{path: 'books',
-		//    match: { title: { $eq: "JavaScript: The Definitive Guide" } }});
-		// const user = await User.aggregate(
-		// 	[
-		// 		{"$match":
-		// 				{	location:
-		// 									{ $geoWithin: 
-		// 																{ $centerSphere: [ [ -79.7624177, 43.7315479 ], 100/6378.1 ] } 
-		// 									},
-					
-		// 			}}
-		// 	])
-				// {
-				// 			"books":
-				// 						// {"$elemMatch":
-				// 							{"id": "2weL0iAfrEMC" }
-				// 						// }
-				// }
-			// ]}
-					// {
-					// 	books:
-					// 					{$eleMatch:
-					// 						{"title":  {$eq: "JavaScript: The Definitive Guide" }}
-					// 					}
-					// }
-				// },
-				// {"$match":
-			  // 	{path:"books",
-				// 		match	:				{
-				// 								title:{$eq:"JavaScript: The Definitive Guide"}
-				// 							}
-				//   }
-
-				// }
-			// ])
-		
-		// books:{title:{ $eq: "JavaScript: The Definitive Guide" }}
-			
-			// [
-			// 	{ "$geoNear": {
-			// 		"near": {
-			// 			"type": "Point",
-			// 			"coordinates": [-79.7624177, 43.7315479 ]
-			// 		},
-			// 		"spherical": true,
-			// 		"distanceField": "distance",
-			// 		"distanceMultiplier": 0.001,
-			// 		"maxDistance": 100/6378.1,
-			// 		"includeLocs": "location"
-			// 	}}
-				// ,
-				// { "$addFields": {
-				// 	"parking_space": {
-				// 		"$filter": {
-				// 			"input": "$parking_space",
-				// 			"cond": {
-				// 				"$eq": ["$location", "$$this.location"]
-				// 			}
-				// 		}
-				// 	}
-				// }}
-			// ]
-
-		// }}])
-
 		if(user){
 			console.log("user:", user)
 		 res.json(user)
@@ -123,9 +63,6 @@ router.get("/:id/findUsers",async(req,res)=>{
 		res.send(error)
 	}
 })
-
-
-
 
 
 //Get collection of user
@@ -164,7 +101,6 @@ router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 					description,
 					previewLink
 				} = data.volumeInfo
-
 				const newBook = await Book.create({
 					id:data.id,
 					title,
@@ -173,11 +109,12 @@ router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 					publisher,
 					publishedDate,
 					description,
-					industryIdentifiers:[...data.volumeInfo.industryIdentifiers],
-					imageLinks:{...data.volumeInfo.imageLinks},
+					industryIdentifiers:(data.volumeInfo.industryIdentifiers ?[...data.volumeInfo.industryIdentifiers]:null),
+					imageLinks:(data.volumeInfo.imageLinks?{...data.volumeInfo.imageLinks}:null),
 					previewLink,
 					user:req.params.id
 				});
+		
 			//push this new book to foundUser books array and save
 				foundUser.books.push(newBook._id);
 				await foundUser.save();
@@ -199,9 +136,9 @@ router.delete("/:id/collection/remove/:book_id",wrapAsync(async(req,res)=>{
 		if(foundBook.user.toString() !== req.params.id){
 			return res.status(403).json({message:"Not authorized"})
 		};
-		await foundBook.remove();
-		res.json(foundBook)
-	throw createError(400,"Something went wrong")
+		await foundBook.remove().catch(error => {throw createError(400,"Something went wrong") });
+		res.json({removedBook:foundBook,message:`${foundBook.title} is removed from your collection`})
+	
 }))
 
 module.exports = router;

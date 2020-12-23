@@ -24,9 +24,6 @@ router.post("/login",
 	body("password").exists().withMessage("Password is required")
 	
 ] ,wrapAsync(async(req,res)=>{
-
-
-	
 	//validation result 	
 	const errors = validationResult(req);
 	if(!errors.isEmpty()){
@@ -34,12 +31,17 @@ router.post("/login",
 	}
 
 	
-	const foundUser= await User.findOne({email:req.body.email});
+	let foundUser= await User.findOne({email:req.body.email});
 		if(foundUser){
 			//check the password of the found user
+			console.log("foundYser", foundUser)
 		console.log("requestedPass",req.body.password)
 		console.log("userPw", foundUser.password);
 			const correctPassword = await bcrypt.compare(req.body.password,foundUser.password);
+		// const correctPassword = 	bcrypt.compare(req.body.password,foundUser.password).then(result => {
+		// 		console.log("result",result);
+		// 		return result
+		// 	})
 		console.log("correctedPW:", correctPassword)
 			if(correctPassword){
 				const token = createAccessToken(foundUser._id);
@@ -73,10 +75,6 @@ wrapAsync(async(req,res)=>{
 			throw createError(400, errors.errors[0].msg)
 		}
 		//1.get the city from the req.body
-
-
-
-
 const cityLocation =	await client.geocode({
 			params: {
 			 address:`${req.body.city}`,
@@ -113,21 +111,16 @@ const cityLocation =	await client.geocode({
 			throw  createError(400,"Email Already exist")
 		}else{
 			try{
-				const newUser = await User.create({email:req.body.email,firstName:req.body.firstName,password:req.body.password,location:cityLocation})
+				const newUser = await User.create({email:req.body.email,firstName:req.body.firstName,password:req.body.password,lastName:req.body.lastName,location:cityLocation})
 				// const newCity = await City.create({name:req.body.city, location:cityLocation});
 				// newUser.city.push(newCity._id)
 			const token = createAccessToken(newUser._id);
 			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24,sameSite:"lax"});
-			console.log("newUser::",newUser)
 			res.status(201).json(token);
 			// res.status(201).json(newUser);
 			}catch(error){
 			  throw createError(500,error.message)
 			}
-		
-				
-		
-			
 		}
 
 	}

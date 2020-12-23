@@ -9,6 +9,7 @@ const bookSchema = new mongoose.Schema({
 	},
 	title:{
 			type:String,
+			lowercase: true
 	},
 	subtitle:String,
 	authors:[{

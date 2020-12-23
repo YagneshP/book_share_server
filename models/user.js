@@ -42,7 +42,8 @@ location:{type:pointSchema,indexes:"2dsphere"},
 });
 
 userSchema.pre("save", async function(next){
-	const salt = 10;
+	const saltRound = 10;
+	const salt = await bcyrpt.genSalt(saltRound);
 	 this.password = await bcyrpt.hash(this.password,salt);
 	next()
 })
