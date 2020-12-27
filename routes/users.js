@@ -5,16 +5,7 @@ const router = express.Router();
 const User = require("../models/user");
 const{wrapAsync}=require("../wrapAsync");
 const createError = require('http-errors')
-require("dotenv").config()
-const{google} = require("googleapis");
-const City = require("../models/city");
-
-
-
-const book =  google.books({
-	version: 'v1',
-  auth: process.env.GOOGLE_API // specify your API key here
-});
+const{book} = require("../util/googleBook")
 
 router.get("/", wrapAsync(async(req,res)=>{
 		 const user = await User.findById(req.user.userId).select("-password").populate("books");
@@ -27,13 +18,13 @@ router.get("/", wrapAsync(async(req,res)=>{
 
 
 //========= getting user near city location ===========//
-router.get("/:id/findUsers",async(req,res)=>{
-	try{
-console.log("req.query.bookName:", typeof(req.query.bookName))
-const reqUser = await User.findById(req.params.id);
-const lag= reqUser.location.coordinates[0];
-const lat = reqUser.location.coordinates[1]
-const user =  await	User.aggregate(
+router.get("/:id/findUsers",wrapAsync(async(req,res)=>{
+try{
+		if(req.query.bookName !== ""){
+		const reqUser = await User.findById(req.params.id);
+		const lag= reqUser.location.coordinates[0];
+		const lat = reqUser.location.coordinates[1]
+		const user =  await	User.aggregate(
 			[ { "$lookup": {
 						"from": "books",
 						"localField": "books",
@@ -55,14 +46,19 @@ const user =  await	User.aggregate(
 				},
 					{"$project":{firstName:1, email:1,_id:0}}
 					])
-		if(user){
+	if(user){
 			console.log("user:", user)
 		 res.json(user)
-	}}catch(error){
-		console.log(error)
-		res.send(error)
+	} else{
+		throw Error("Something went Wrong")
 	}
-})
+}else{
+	throw Error("Please provide book Name")
+}}catch(error){
+	throw createError(400,error.message)
+}
+}
+))
 
 
 //Get collection of user
@@ -92,6 +88,7 @@ router.post("/:id/collection/add/:book_id",wrapAsync(async(req,res)=>{
 					};
 		//3. if we find book then create new book for user collection and send response
 				const data = await oneBook(bookId).catch(error => {throw createError(500, error.message)}); // Need to improve to throw error ****//
+
 				const{
 					title,
 					subtitle,
