@@ -18,7 +18,7 @@ try {
 				//check the password of the found user
 					const token = createAccessToken(foundUser._id);
 					res.cookie("jwt", token, {
-						maxAge: 1000 * 60 * 60 ,
+						maxAge: 1000 * 60 * 60 * 24,
 						httpOnly:true,
 						sameSite:"lax"
 					})
@@ -50,7 +50,7 @@ const user = await User.findOne({email: req.body.email});
 			const cityLocation = await createCityLocation(req.body.city)
 			const newUser = await User.create({email:req.body.email,firstName:req.body.firstName,password:req.body.password,lastName:req.body.lastName,location:cityLocation})
 			const token = createAccessToken(newUser._id);
-			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 ,sameSite:"lax"});
+			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24 ,sameSite:"lax"});
 			res.status(201).json(token);
 		}catch(error){
 			throw createError(500,error.message)
