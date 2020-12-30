@@ -18,17 +18,20 @@ mongoose.connect(process.env.MONGO_URI,
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		useCreateIndex: true
-	});
-const port = 8004;
+	}).catch(error =>{
+		console.log(error)
+		throw Error("DB connection problem")
+		});
+const port = process.env.PORT||8004;
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(cors({
-	origin:"http://localhost:3000",
-	credentials:true
-}))
+// app.use(cors({
+// 	origin:"http://localhost:3000",
+// 	credentials:true
+// }))
 app.get("/", (req,res)=>{
-	res.send("HomePage");
+	res.send("Home Page")
 })
 app.use("/api/user",authCheck,user);// add authcheck middleware
 app.use("/api/auth",auth)

@@ -47,7 +47,6 @@ try{
 					{"$project":{firstName:1, email:1,_id:0}}
 					])
 	if(user){
-			console.log("user:", user)
 		 res.json(user)
 	} else{
 		throw Error("Something went Wrong")
