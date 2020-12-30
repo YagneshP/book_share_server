@@ -5,6 +5,6 @@
 	res.status(error.status);
 	res.json({
 		message:error.message,
-		stack:   error.stack	}) //process.env.NODE_ENV === "production" ? null :
+		stack: process.env.NODE_ENV === "production" ? null : error.stack	}) 
 }
 module.exports = errorHandler;
