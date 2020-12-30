@@ -26,11 +26,11 @@ const port = process.env.PORT||8004;
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(cors())
-// {
-// 	origin:"https://book-share-client-yp.herokuapp.com/",
-// 	credentials:true
-// }
+app.use(cors({
+	origin:"https://book-share-client-yp.herokuapp.com/",
+	credentials:true
+}))
+
 app.use("/api/user",authCheck,user);// add authcheck middleware
 app.use("/api/auth",auth)
 app.use("/api/books",authCheck, books); // add authcheck middleware
