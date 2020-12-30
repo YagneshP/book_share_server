@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(cors({
-	origin:"https://book-share-client-yp.herokuapp.com/",
+	origin:"http://localhost:3000/",
 	credentials:true
 }))
 
