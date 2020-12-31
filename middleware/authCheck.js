@@ -6,6 +6,8 @@ const createError = require('http-errors')
 const authCheck =(req,res, next) =>{
 	//we check the token is exist
 	console.log("req.cookies", req.cookies.jwt)
+	console.log("req.headers", req.headers)
+	console.log("req.headers.cookie", req.headers.cookie)
 		const token = req.cookies.jwt;
 		if(!token){
 				// return res.status(400).json({message:"Authorization Denied"});
