@@ -33,7 +33,7 @@ app.use(cors({
 }))
 
 app.use("/api/user",authCheck,user);// add authcheck middleware
-app.use("/api/auth",cors({origin:true}), auth)
+app.use("/api/auth",cors(), auth)
 app.use("/api/books",authCheck, books); // add authcheck middleware
 app.use( notFound);
 app.use( errorHandler);
