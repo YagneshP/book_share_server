@@ -24,7 +24,7 @@ wrapAsync(auth_signup));
 //logOut
 router.post("/logout",(req,res)=>{
  res.clearCookie("jwt");
- res.redirect("/")
+//  res.redirect("/")
 })
 
 
