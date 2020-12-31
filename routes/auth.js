@@ -23,6 +23,7 @@ wrapAsync(auth_signup));
 
 //logOut
 router.post("/logout",(req,res)=>{
+	console.log("request coming here..")
  res.clearCookie("jwt");
  res.cookie("jwt", "",{
 	maxAge: 1000 * 1,
