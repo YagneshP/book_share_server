@@ -27,8 +27,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({
-	origin:["https://book-share-client-yp.herokuapp.com","https://book-share-client-yp.herokuapp.com/library","https://book-share-client-yp.herokuapp.com/findRental"],
-	allowedHeaders:"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,observe",
+	// origin:["https://book-share-client-yp.herokuapp.com","https://book-share-client-yp.herokuapp.com/library","https://book-share-client-yp.herokuapp.com/findRental"],
+	// allowedHeaders:"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,observe",
 	credentials:true
 }))
 
