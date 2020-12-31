@@ -22,11 +22,10 @@ router.post("/signup",
 wrapAsync(auth_signup));
 
 //logOut
-router.post("/logout",(req,res)=>{
-	console.log("request coming here..");
-	console.log("req.cookie before cleaning", req.cookies.jwt)
+router.post("/logout",(_req,res)=>{
+
  res.clearCookie("jwt",{path:"/"});
- console.log("req.cookie aftercleaning", req.cookies.jwt)
+
  res.cookie("jwt", "",{
 	maxAge: 1000 * 1,
 	httpOnly:true,
