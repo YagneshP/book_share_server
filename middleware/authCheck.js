@@ -5,7 +5,7 @@ const createError = require('http-errors')
 
 const authCheck =async  (req,res, next) =>{
 	//we check the token is exist
-	console.log("req.cookies", req)
+	console.log("req.cookies", req.cookies)
 		const token = req.cookies.jwt;
 		if(!token){
 				// return res.status(400).json({message:"Authorization Denied"});
@@ -19,7 +19,8 @@ const authCheck =async  (req,res, next) =>{
 			    req.user = decoded;
 			    next();
 			 }else{
-				 throw Error("Access denied")
+				//  throw Error("Access denied")
+				throw createError(400, "ACCESS DeNIED");
 			 }
 		 });
 		} catch(error){
