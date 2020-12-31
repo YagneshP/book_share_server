@@ -21,7 +21,7 @@ try {
 						maxAge: 1000 * 60 * 60 * 24,
 						httpOnly:true,
 						sameSite:"none",
-						Secure
+						secure:true
 					})
 				return	res.status(200).json(token);
 				}
@@ -51,7 +51,7 @@ const user = await User.findOne({email: req.body.email});
 			const cityLocation = await createCityLocation(req.body.city)
 			const newUser = await User.create({email:req.body.email,firstName:req.body.firstName,password:req.body.password,lastName:req.body.lastName,location:cityLocation})
 			const token = createAccessToken(newUser._id);
-			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24,sameSite:"none", Secure});
+			res.cookie("jwt", token, {maxAge: 1000 * 60 * 60 * 24,sameSite:"none", secure:true});
 			res.status(201).json(token);
 		}catch(error){
 			throw createError(500,error.message)
