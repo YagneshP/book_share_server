@@ -23,11 +23,12 @@ mongoose.connect(process.env.MONGO_URI,
 		throw Error("DB connection problem")
 		});
 const port = process.env.PORT||8004;
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({
 	origin:"https://book-share-client-yp.herokuapp.com",
+	allowedHeaders:"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,observe",
 	credentials:true
 }))
 
