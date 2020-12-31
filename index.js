@@ -28,12 +28,12 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({
 	origin:"https://book-share-client-yp.herokuapp.com",
-	// allowedHeaders:"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,observe",
+	allowedHeaders:"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,observe",
 	credentials:true
 }))
 
 app.use("/api/user",authCheck,user);// add authcheck middleware
-app.use("/api/auth",auth)
+app.use("/api/auth",cors({origin:true}), auth)
 app.use("/api/books",authCheck, books); // add authcheck middleware
 app.use( notFound);
 app.use( errorHandler);
