@@ -31,6 +31,7 @@ router.post("/logout",(req,res)=>{
 	sameSite:"none",
 	secure:true
 } )
+res.status(200)
 //  res.redirect("/")
 })
 
