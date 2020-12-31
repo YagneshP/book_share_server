@@ -34,7 +34,7 @@ router.post("/logout",(req,res)=>{
 	secure:true
 } )
 res.status(200).json({message:"Logged Out"})
-//  res.redirect("/")
+ 
 })
 
 
