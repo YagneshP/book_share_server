@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const createError = require('http-errors')
 
-const authCheck =async  (req,res, next) =>{
+const authCheck =(req,res, next) =>{
 	//we check the token is exist
 	console.log("req.cookies", req.cookies)
 		const token = req.cookies.jwt;
