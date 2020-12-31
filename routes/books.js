@@ -9,6 +9,7 @@ router.get("/", wrapAsync(async(req,res)=>{
 	try{
 			if(req.query.q !== ""){
 					const query = req.query.q;
+					console.log("query",query)
 					async function main(query) {
 					const response = await book.volumes.list({q:query});
 					const volumeInfo = response.data.items.map(i =>  i); //.volumeInfo
