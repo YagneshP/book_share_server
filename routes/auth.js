@@ -22,7 +22,7 @@ router.post("/signup",
 wrapAsync(auth_signup));
 
 //logOut
-router.post("/logout",(req,res)=>{
+router.get("/logout",(req,res)=>{
 	console.log("request coming here..");
 	console.log("req.cookie before cleaning", req.cookies.jwt)
  res.clearCookie("jwt", {path:'/logout'});
