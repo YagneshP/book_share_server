@@ -9,10 +9,10 @@
     "dev": "nodemon index.js"
   },
   "author": "yagnesh",
-	"license": "ISC",
-	"engines": {
+  "license": "ISC",
+  "engines": {
     "node": "10.x"
-},
+  },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "axios": "^0.21.0",

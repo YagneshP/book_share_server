@@ -1,63 +1,61 @@
-
-const mongoose =  require("mongoose");
+const mongoose = require("mongoose");
 const User = require("../models/user");
 
-
 const bookSchema = new mongoose.Schema({
-	id:{  //google.id
-		type:String
-	},
-	title:{
-			type:String,
-			lowercase: true
-	},
-	subtitle:String,
-	authors:[{
-		type:String
-	}],
-	publisher:{
-		type:String,
-	},
-	publishedDate:{
-		type:String,
-	},
-	description:{
-		type:String
-	},
-	industryIdentifiers:[{type:{type:String},identifier:String}],
-	imageLinks:{
-		smallThumbnail:{type:String},
-		thumbnail:{type:String}
-	},
-	previewLink:{
-		type:String
-	},
-	user:[{
-		type:mongoose.Types.ObjectId,
-		ref:"User"
-	}],
+  id: {
+    //google.id
+    type: String,
+  },
+  title: {
+    type: String,
+    lowercase: true,
+  },
+  subtitle: String,
+  authors: [
+    {
+      type: String,
+    },
+  ],
+  publisher: {
+    type: String,
+  },
+  publishedDate: {
+    type: String,
+  },
+  description: {
+    type: String,
+  },
+  industryIdentifiers: [{ type: { type: String }, identifier: String }],
+  imageLinks: {
+    smallThumbnail: { type: String },
+    thumbnail: { type: String },
+  },
+  previewLink: {
+    type: String,
+  },
+  user: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
-
-bookSchema.pre("remove", async function(next){
-	const User = require("./user")
-	try{
-		let user = await User.findById(this.user);
-		await user.books.remove(this._id);
-		await user.save();
-		next();
-	} catch(err){
-		next(err)
-	}
-
-})
+bookSchema.pre("remove", async function (next) {
+  const User = require("./user");
+  try {
+    let user = await User.findById(this.user);
+    await user.books.remove(this._id);
+    await user.save();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 const Book = mongoose.model("Book", bookSchema);
 
 module.exports = Book;
-
-
-
 
 //  {
 // 	"title": "JavaScript: The Good Parts",
